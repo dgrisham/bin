@@ -2,15 +2,15 @@
 
 # constants
 # ---------
-wifi_file="/etc/wpa_supplicant/wifi_networks"
-wifi_config="$DOTFILES$wifi_file"
+wifi_config="/etc/wpa_supplicant/wifi_networks"
+# wifi_config="$DOTFILES$wifi_file"
 wifi_card="$WIFI_CARD"
 
 # reconnect using wpa_supplicant
 # ------------------------------
 wifi_connect() {
     wifi_disconnect
-    sudo wpa_supplicant -B -Dnl80211 -i"$wifi_card" -c"$wifi_file"
+    sudo wpa_supplicant -B -Dnl80211 -i"$wifi_card" -c"$wifi_config"
     sudo dhcpcd "$wifi_card"
 }
 
@@ -69,7 +69,7 @@ wifi_new() {
             ;;
         c*|C*)
             echo "enter passphrase..."
-            wpa_passphrase "$ssid" | tee -a "$wifi_config"
+            wpa_passphrase "$ssid" | sudo tee -a "$wifi_config"
             ;;
         *)
             echo "Unrecognized network type: '$network_type'"
@@ -98,6 +98,13 @@ wifi_menu() {
     wifi_new "${networks[$network_num]}" $@
 }
 
+# edit the wifi networks file
+# ---------------------------
+
+wifi_edit() {
+    sudo -E "$EDITOR" "$wifi_config"
+}
+
 # interface
 # ---------
 wifi_command="$1"
@@ -108,6 +115,9 @@ case "$wifi_command" in
         ;;
     d|disconnect)
         wifi_disconnect $@
+        ;;
+    e|edit)
+        wifi_edit $@
         ;;
     s|scan)
         wifi_scan $@

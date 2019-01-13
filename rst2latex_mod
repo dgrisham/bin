@@ -10,7 +10,8 @@ A minimal front end to the Docutils Publisher, producing LaTeX.
 
 try:
     import locale
-    locale.setlocale(locale.LC_ALL, '')
+
+    locale.setlocale(locale.LC_ALL, "")
 except:
     pass
 
@@ -24,12 +25,14 @@ from docutils.core import publish_cmdline
 from docutils.parsers.rst.roles import set_classes
 from docutils.utils.code_analyzer import Lexer, LexerError, NumberLines
 
-description = ('Generates LaTeX documents from standalone reStructuredText '
-               'sources. '
-               'Reads from <source> (default is stdin) and writes to '
-               '<destination> (default is stdout).  See '
-               '<http://docutils.sourceforge.net/docs/user/latex.html> for '
-               'the full reference.')
+description = (
+    "Generates LaTeX documents from standalone reStructuredText "
+    "sources. "
+    "Reads from <source> (default is stdin) and writes to "
+    "<destination> (default is stdout).  See "
+    "<http://docutils.sourceforge.net/docs/user/latex.html> for "
+    "the full reference."
+)
 
 # Notes
 # =====
@@ -42,16 +45,20 @@ description = ('Generates LaTeX documents from standalone reStructuredText '
 #     \soulregister\color7
 #     ```
 
+
 class hl(nodes.Special, nodes.Inline, nodes.PreBibliographic, nodes.FixedTextElement):
     pass
 
+
 def hl_role(role, rawtext, text, lineno, inliner, options={}, content={}):
-    if 'fg' not in options and 'bg' not in options:
+    if "fg" not in options and "bg" not in options:
         msg = inliner.reporter.error(
-           f'No foreground or background color specified for {role} role.\n'
+            f"No foreground or background color specified for {role} role.\n"
             'The "hl" role cannot be used directly.\n'
             'Instead, use the "role" directive to create a new role with '
-            'associated foreground and/or background colors.', line=lineno)
+            "associated foreground and/or background colors.",
+            line=lineno,
+        )
         prb = inliner.problematic(rawtext, rawtext, msg)
         return [prb], [msg]
     roles.set_classes(options)
@@ -59,22 +66,28 @@ def hl_role(role, rawtext, text, lineno, inliner, options={}, content={}):
     node.source, node.line = inliner.reporter.get_source_and_line(lineno)
     return [node], []
 
+
 class mint(nodes.Special, nodes.Inline, nodes.PreBibliographic, nodes.FixedTextElement):
     pass
 
-hl_role.options = { 'fg': directives.unchanged,
-                    'bg': directives.unchanged,
-                    'prefix': directives.unchanged
-                  }
-roles.register_canonical_role('hl', hl_role)
+
+hl_role.options = {
+    "fg": directives.unchanged,
+    "bg": directives.unchanged,
+    "prefix": directives.unchanged,
+}
+roles.register_canonical_role("hl", hl_role)
+
 
 def mint_role(role, rawtext, text, lineno, inliner, options={}, content={}):
-    if 'language' not in options:
+    if "language" not in options:
         msg = inliner.reporter.error(
-           f'No language specified for {role} role.\n'
+            f"No language specified for {role} role.\n"
             'The "mint" role cannot be used directly.\n'
             'Instead, use the "role" directive to create a new role with '
-            'associated language for syntax highlighting.', line=lineno)
+            "associated language for syntax highlighting.",
+            line=lineno,
+        )
         prb = inliner.problematic(rawtext, rawtext, msg)
         return [prb], [msg]
     roles.set_classes(options)
@@ -82,8 +95,9 @@ def mint_role(role, rawtext, text, lineno, inliner, options={}, content={}):
     node.source, node.line = inliner.reporter.get_source_and_line(lineno)
     return [node], []
 
-mint_role.options = { 'language': directives.unchanged }
-roles.register_canonical_role('mint', mint_role)
+
+mint_role.options = {"language": directives.unchanged}
+roles.register_canonical_role("mint", mint_role)
 
 # inherit from Figure and extend its run method
 class FigureLabel(Figure):
@@ -96,33 +110,35 @@ class FigureLabel(Figure):
             return node
         figure_node = node[0]
         # elevate the image node's 'ids' attribute to the figure node
-        figure_node['ids'] = figure_node.children[0]['ids']
-        figure_node.children[0]['ids'] = []
+        figure_node["ids"] = figure_node.children[0]["ids"]
+        figure_node.children[0]["ids"] = []
         # raise Exception
         return [figure_node] + node[1:]
 
+
 directives.register_directive("fig", FigureLabel)
+
 
 class LaTeXTranslator_Mod(LaTeXTranslator):
     # output label in depart_figure, instead of visit_figure. this way the label comes after
     # the caption, which is required for refs to work.
     def visit_figure(self, node):
-        self.requirements['float_settings'] = PreambleCmds.float_settings
-        alignment = node.attributes.get('align', 'center')
-        if alignment != 'center':
+        self.requirements["float_settings"] = PreambleCmds.float_settings
+        alignment = node.attributes.get("align", "center")
+        if alignment != "center":
             self.out.append('\n\\begin{figure} %% align = "%s"\n' % alignment)
         else:
-            self.out.append('\n\\begin{figure}\n')
+            self.out.append("\n\\begin{figure}\n")
 
     def depart_figure(self, node):
-        if node.get('ids'):
-            self.out += self.ids_to_labels(node) + ['\n']
+        if node.get("ids"):
+            self.out += self.ids_to_labels(node) + ["\n"]
         super().depart_figure(node)
 
     def visit_hl(self, node):
-        fg = node.get('fg', '')
-        bg = node.get('bg', '')
-        prefix = node.get('prefix', '')
+        fg = node.get("fg", "")
+        bg = node.get("bg", "")
+        prefix = node.get("prefix", "")
         self.out += "{"
         if bg:
             self.out += "\\sethlcolor{" + bg + "}\\hl{"
@@ -132,13 +148,13 @@ class LaTeXTranslator_Mod(LaTeXTranslator):
             self.out += f"{prefix} "
 
     def depart_hl(self, node):
-        bg = node.get('bg', '')
+        bg = node.get("bg", "")
         if bg:
             self.out += "}"
         self.out += "}"
 
     def visit_mint(self, node):
-        language = node.get('language', '')
+        language = node.get("language", "")
         self.out += "\\mintinline[fontsize=\\normalsize]{" + language + "}{"
         self.verbatim = True
 
@@ -151,12 +167,15 @@ class LaTeXTranslator_Mod(LaTeXTranslator):
 
         Corresponding rST elements: literal block, parsed-literal, code.
         """
-        packages = {'lstlisting':  r'\usepackage{listings}' '\n'
-                                   r'\lstset{xleftmargin=\leftmargin}',
-                    'listing': r'\usepackage{moreverb}',
-                    'minted': r'\usepackage{minted}',
-                    'Verbatim': r'\usepackage{fancyvrb}',
-                    'verbatimtab': r'\usepackage{moreverb}'}
+        packages = {
+            "lstlisting": r"\usepackage{listings}"
+            "\n"
+            r"\lstset{xleftmargin=\leftmargin}",
+            "listing": r"\usepackage{moreverb}",
+            "minted": r"\usepackage{minted}",
+            "Verbatim": r"\usepackage{fancyvrb}",
+            "verbatimtab": r"\usepackage{moreverb}",
+        }
 
         environment = self.literal_block_env
         _in_table = self.active_table.is_open()
@@ -164,58 +183,74 @@ class LaTeXTranslator_Mod(LaTeXTranslator):
         #       Check parent node instead?
         _autowidth_table = _in_table and self.active_table.colwidths_auto
         _plaintext = self.is_plaintext(node)
-        _listings = (environment == 'lstlisting') and _plaintext
-        _minted = (environment == 'minted') and _plaintext
+        _listings = (environment == "lstlisting") and _plaintext
+        _minted = (environment == "minted") and _plaintext
 
         # Labels and classes:
-        if node.get('ids'):
-            self.out += ['\n'] + self.ids_to_labels(node)
+        if node.get("ids"):
+            self.out += ["\n"] + self.ids_to_labels(node)
         self.duclass_open(node)
-        if (not _plaintext and 'code' in node['classes']
-            and self.settings.syntax_highlight != 'none'):
-            self.requirements['color'] = PreambleCmds.color
-            self.fallbacks['code'] = PreambleCmds.highlight_rules
+        if (
+            not _plaintext
+            and "code" in node["classes"]
+            and self.settings.syntax_highlight != "none"
+        ):
+            self.requirements["color"] = PreambleCmds.color
+            self.fallbacks["code"] = PreambleCmds.highlight_rules
 
         # Wrapper?
         if _in_table and _plaintext and not _autowidth_table:
             # minipage prevents extra vertical space with alltt
             # and verbatim-like environments
-            self.fallbacks['ttem'] = '\n'.join(['',
-                r'% character width in monospaced font',
-                r'\newlength{\ttemwidth}',
-                r'\settowidth{\ttemwidth}{\ttfamily M}'])
-            self.out.append('\\begin{minipage}{%d\\ttemwidth}\n' %
-                (max(len(line) for line in node.astext().split('\n'))))
-            self.context.append('\n\\end{minipage}\n')
+            self.fallbacks["ttem"] = "\n".join(
+                [
+                    "",
+                    r"% character width in monospaced font",
+                    r"\newlength{\ttemwidth}",
+                    r"\settowidth{\ttemwidth}{\ttfamily M}",
+                ]
+            )
+            self.out.append(
+                "\\begin{minipage}{%d\\ttemwidth}\n"
+                % (max(len(line) for line in node.astext().split("\n")))
+            )
+            self.context.append("\n\\end{minipage}\n")
         elif not _in_table and not _listings and not _minted:
             # wrap in quote to set off vertically and indent
-            self.out.append('\\begin{quote}\n')
-            self.context.append('\n\\end{quote}\n')
+            self.out.append("\\begin{quote}\n")
+            self.context.append("\n\\end{quote}\n")
         else:
-            self.context.append('\n')
+            self.context.append("\n")
 
         # Use verbatim-like environment, if defined and possible
-        if environment and _plaintext and (not _autowidth_table or _listings or _minted):
+        if (
+            environment
+            and _plaintext
+            and (not _autowidth_table or _listings or _minted)
+        ):
             try:
-                self.requirements['literal_block'] = packages[environment]
+                self.requirements["literal_block"] = packages[environment]
             except KeyError:
                 pass
             self.verbatim = True
             if _in_table and _listings:
-                self.out.append('\lstset{xleftmargin=0pt}\n')
+                self.out.append("\lstset{xleftmargin=0pt}\n")
             if _minted:
-                language = node.get('classes')[1]
-                self.out.append('\\begin{%s}{%s}%s\n' %
-                                (environment, language, self.literal_block_options))
+                language = node.get("classes")[1]
+                self.out.append(
+                    "\\begin{%s}{%s}%s\n"
+                    % (environment, language, self.literal_block_options)
+                )
             else:
-                self.out.append('\\begin{%s}%s\n' %
-                                (environment, self.literal_block_options))
-            self.context.append('\n\\end{%s}' % environment)
+                self.out.append(
+                    "\\begin{%s}%s\n" % (environment, self.literal_block_options)
+                )
+            self.context.append("\n\\end{%s}" % environment)
         elif _plaintext and not _autowidth_table:
             self.alltt = True
-            self.requirements['alltt'] = r'\usepackage{alltt}'
-            self.out.append('\\begin{alltt}\n')
-            self.context.append('\n\\end{alltt}')
+            self.requirements["alltt"] = r"\usepackage{alltt}"
+            self.out.append("\\begin{alltt}\n")
+            self.context.append("\n\\end{alltt}")
         else:
             self.literal = True
             self.insert_newline = True
@@ -223,14 +258,15 @@ class LaTeXTranslator_Mod(LaTeXTranslator):
             # \raggedright ensures leading blanks are respected but
             # leads to additional leading vspace if the first line
             # of the block is overfull :-(
-            self.out.append('\\ttfamily\\raggedright\n')
-            self.context.append('')
+            self.out.append("\\ttfamily\\raggedright\n")
+            self.context.append("")
 
     def depart_literal_block(self, node):
         super().depart_literal_block(node)
-        end_paragraph = node.attributes.get('endpar', 'false')
-        if end_paragraph == 'false':
-            self.out.append('%')
+        end_paragraph = node.attributes.get("endpar", "false")
+        if end_paragraph == "false":
+            self.out.append("%")
+
 
 writer = Writer()
 writer.translator_class = LaTeXTranslator_Mod
