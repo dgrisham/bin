@@ -1,0 +1,4 @@
+#!/bin/zsh
+
+source "$SRC/wenv/wenv"
+wenv $@

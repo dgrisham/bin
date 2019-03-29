@@ -83,7 +83,7 @@ wifi_menu() {
     sudo ip link set "$wifi_card" up
     counter=0
     typeset -A networks
-    wifi_scan | while read wifi_network; do
+    wifi_scan | while read -r wifi_network; do
         networks[$counter]="$wifi_network"
         echo "$counter: $wifi_network"
         counter="$(($counter + 1))"
