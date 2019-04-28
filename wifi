@@ -55,6 +55,7 @@ wifi_list() {
 wifi_new() {
     ssid="$1"
     [[ -z "$ssid" ]] && return 1
+    echo "$ssid"
     printf "[o]pen or [c]losed network: "
     read network_type
     echo
@@ -81,21 +82,8 @@ wifi_new() {
 # ----------------------------
 wifi_menu() {
     sudo ip link set "$wifi_card" up
-    counter=0
-    typeset -A networks
-    wifi_scan | while read -r wifi_network; do
-        networks[$counter]="$wifi_network"
-        echo "$counter: $wifi_network"
-        counter="$(($counter + 1))"
-    done
-    printf "Which network: "
-    read network_num
-    echo $network_num
-    if [[ "$network_num" -lt '0' || "$network_num" -gt "${#networks}" ]]; then
-        echo "Out of range."
-        return 1
-    fi
-    wifi_new "${networks[$network_num]}" $@
+    aps=$(wifi_scan)
+    wifi_new "$(echo $aps | sk)" $@
 }
 
 # edit the wifi networks file

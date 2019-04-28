@@ -86,6 +86,7 @@ while true; do
             old_md5="$new_md5"
             ;;
     esac
+
     read -s -t 0
     input=""
 done
