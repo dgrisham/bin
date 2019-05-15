@@ -11,10 +11,11 @@ config="$DOTFILES/cava/config"
 num="$1"
 [[ -z "$num" ]] && num=4
 
-colors=$($BIN/get_colors.py $num $cover)
+export MAGICK_OCL_DEVICE=OFF
+colors="$($BIN/get_colors.py $num $cover)"
 if [[ -z "$colors" ]]; then
-    colors='#222222
-#ffffff'
+    colors='#000000
+#888888'
     num=2
 fi
 perl -pi -e 's/^gradient_count = \d+$/gradient_count = '$num'/' -- "$config"

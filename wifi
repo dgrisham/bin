@@ -83,7 +83,7 @@ wifi_new() {
 wifi_menu() {
     sudo ip link set "$wifi_card" up
     aps=$(wifi_scan)
-    wifi_new "$(echo $aps | sk)" $@
+    wifi_new "$(echo $aps | sort -r | uniq | sk)" $@
 }
 
 # edit the wifi networks file
