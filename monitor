@@ -21,7 +21,7 @@ case "$monitor_type" in
              exit 1
         fi
         diff_command=("cat" "$filename")
-    echo "$filename"
+        echo "$filename"
         ;;
     files)
         diff_command=("cat")
