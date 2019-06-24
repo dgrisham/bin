@@ -1,0 +1,4 @@
+#!/bin/sh
+scale_opt="$1"
+[[ -z "$scale_opt" ]] && scale_opt="--bg-scale"
+feh --randomize --no-fehbg "$scale_opt" /home/grish/media/pictures/wallpapers/current/*
