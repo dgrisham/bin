@@ -4,8 +4,8 @@ file="$(mpc --format %file% current)"
 i=0
 [[ -z "$file" ]] && exit 1
 album_dir="${file%/*}"
-MUSIC_DIR="$MUSIC/library"
-cover="$MUSIC_DIR/$album_dir/cover.jpg"
+LIBRARY="$MUSIC/library"
+cover="$LIBRARY/$album_dir/cover.jpg"
 
 config="$DOTFILES/cava/config"
 num="$1"
@@ -22,14 +22,15 @@ perl -pi -e 's/^gradient_count = \d+$/gradient_count = '$num'/' -- "$config"
 
 i=1
 j=1
+while grep --silent "gradient_color_$i = '$color'" "$config"; do
+    ((i++))
+    ((j++))
+    continue
+done
+
 modified=0
 for color in $(echo "$colors"); do
-    if cat "$config" | grep "gradient_color_$i = '$color'"; then
-        ((i++))
-        ((j++))
-        continue
-    fi
-    if cat "$config" | grep "gradient_color_$i"; then
+    if grep --silent "gradient_color_$i" "$config"; then
         perl -pi -e "s/^gradient_color_$i = '#[0-9A-Fa-f]+'$/gradient_color_$i = '$color'/" "$config"
         ((j++))
     else
@@ -39,8 +40,9 @@ for color in $(echo "$colors"); do
     ((i++))
 done
 
+# delete any gradient colors we didn't overwrite
 if ((j == i)); then
-    while cat "$config" | grep "gradient_color_$j"; do
+    while grep --silent "gradient_color_$j" "$config"; do
         sed -i "/^gradient_color_$j =/d" "$config"
         ((j++))
     done

@@ -8,30 +8,27 @@
 
 MUSIC_DIR=$MUSIC/library
 
-COVER=/tmp/cover.jpg
+tmp_cover=/tmp/cover.jpg
 #IM_ARGS=(-limit memory 32mb -limit map 64mb)
 
-function reset_background
-{
-    # is there any better way?
+reset_background() {
     printf "\e]20;;100x100+1000+1000\a"
 }
 
 {
     file="$(mpc --format %file% current)"
     album_dir="${file%/*}"
-    [[ -z "$album_dir" ]] && exit 1
+    [[ -z "$album_dir" ]] && { reset_background ; exit 1 ; }
     album_dir="$MUSIC_DIR/$album_dir"
 
     cover="$album_dir/cover.jpg"
-    rm -f "$COVER"
+    [[ ! -f "$cover" ]] && { reset_background ; exit 1 ; }
+    rm -f "$tmp_cover"
     if [[ -f "$cover" ]]; then
         # resize the image's width to 600px
-        MAGICK_OCL_DEVICE=OFF magick "$cover" -resize 600x "$COVER"
+        MAGICK_OCL_DEVICE=OFF magick "$cover" -resize 600x "$tmp_cover"
     fi
-    #scale down the cover to 30% of the original
-    #place it 1% away from left and 50% away from top.
-    printf "\e]20;${COVER};55x55+50+90:op=keep-aspect\a"
+    printf "\e]20;${tmp_cover};45x45+50+95:op=keep-aspect\a"
     if [[ ! -f "$cover" ]]; then
         reset_background
     fi
