@@ -34,20 +34,20 @@ TYPE=`ls -t1`
 case "$TYPE" in
     *.ape*)
         shnsplit -f *.cue -d "$ODIR" -a track -o "flac flac -s -o %f -" *.ape
-        # cuebreakpoints *.cue | shnsplit -d "$ODIR" -a track -o flac *.ape
+        cuebreakpoints *.cue | shnsplit -O always -d "$ODIR" -a track -o flac *.ape
         cuetag.sh *.cue "$ODIR"/track*.flac
         exit
         ;;
 
     *.flac*)
         shnsplit -f *.cue -d "$ODIR" -a track -o "flac flac -s -o %f -" *.flac
-        # cuebreakpoints *.cue | shnsplit -d "$ODIR" -a track -o flac *.flac
+        cuebreakpoints *.cue | shnsplit -O always -d "$ODIR" -a track -o flac *.flac
         cuetag.sh *.cue "$ODIR"/track*.flac
         exit
         ;;
 
     *.wav*)
-        cuebreakpoints *.cue | shnsplit -d "$ODIR" -a track -o flac *.wav
+        cuebreakpoints *.cue | shnsplit -O always -d "$ODIR" -a track -o flac *.wav
         cuetag.sh *.cue "$ODIR"/track*.flac
         exit
         ;;

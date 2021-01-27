@@ -8,7 +8,6 @@
 
 MUSIC_DIR=$MUSIC/library
 
-COVER=/tmp/cover2.jpg
 #IM_ARGS=(-limit memory 32mb -limit map 64mb)
 
 function reset_background
@@ -23,14 +22,14 @@ function reset_background
     [[ -z "$album_dir" ]] && exit 1
     album_dir="$MUSIC_DIR/$album_dir"
 
-    cover="$album_dir/cover.jpg"
-    rm -f "$COVER"
+    cover=$(find "$album_dir" -regex "$album_dir/cover.[a-z]+$" | head -n1)
     if [[ -f "$cover" ]]; then
-        cp "$cover" "$COVER"
+        tmp_cover="/tmp/2-$(basename $cover)"
+        cp "$cover" "$tmp_cover"
         # resize the image's width to 700px
         # convert "$cover" -resize 700x "$COVER"
     fi
-    printf "\e]20;${COVER};55x75+50+50:op=keep-aspect\a"
+    printf "\e]20;${tmp_cover};55x75+50+50:op=keep-aspect\a"
     if [[ ! -f "$cover" ]]; then
         reset_background
     fi
