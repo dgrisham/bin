@@ -1,0 +1,4 @@
+#!/usr/bin/env zsh
+
+(($# != 0)) && { extensions="$(tr ' ' '|' <<<($@))"; ag_args=('-G' "'.*?$extensions'") }
+sk -m --ansi -i -c 'ag '"$ag_args"' --color "{}"'
